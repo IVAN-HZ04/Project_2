@@ -1,0 +1,182 @@
+/* 
+ * File:   main.cpp
+ * Author: Ivan Hernandez
+ * Created on May 27, 10:45 AM
+ *Purpose: UNO Game with Bubble Sort and Linear Search
+*/
+
+//System Libraries
+#include <iostream> 
+#include <fstream> // File Library
+#include <iomanip> // Formatting Library
+#include <cstdlib> // Random Function Library
+#include <cstring> // String Library
+#include <ctime>   // Time Library
+#include <cmath>   // Math Library
+
+using namespace std;
+
+// Function Prototypes
+void playUNO();
+void bbleSrt(float [], int );
+int linSrch(float [], int , float );
+void rules();
+
+// Program Execution Begins
+int main(int argc, char** argv) {
+    // Set the random number seed
+    
+    // Variable Declarations
+    char choice;
+    const int nCards = 4; // Number of possible cards
+    
+    // Variable Initialization -> Inputs
+    cout << "Would You Like to Play UNO or Read the Rules? :  p/r" << endl;
+    cin >> choice;
+
+    // Mapping Inputs to Outputs
+    switch(choice) {
+        case 'p': 
+            playUNO();
+            break;
+        
+        // Default case that displays the rules of UNO
+        default:  
+            rules();       
+    }
+    
+    // Exit stage right
+    return 0;
+}
+
+// Function for UNO Game
+void playUNO() {
+    // Set the random number seed
+    srand(static_cast<unsigned int>(time(0)));
+
+    // Variable Declarations
+    const int nCards = 4;
+    fstream input;
+    float deck, cards[4]; // Holds values of the player's cards
+    char resp; // Player's response
+    string fileNam; // File name
+    bool win; // Determines if player won the game
+
+    // Initialize file parameters
+    fileNam = "uno_1.cards";
+    input.open(fileNam.c_str(), ios::in); 
+
+    // Loops Game as long as the Player wants to play
+    do {
+        cout << "Let's Play UNO" << endl;
+        cout << "The deck card is..." << endl;
+
+        // Randomize Deck Card and Display It
+        deck = rand() % nCards + 1;
+        cout << deck << endl;
+        cout << "Now the player will get 4 play cards" << endl;
+
+        // Randomize Player's Cards, Display them and User's Input
+        for(int i = 0; i < nCards; i++) {
+            cards[i] = rand() % nCards + 1; // Fill player's cards array with random values
+        }
+
+        // Sorting the player's cards using bubble sort
+        bbleSrt(cards, nCards);
+
+        cout << "Player's Cards: ";
+        for(int i = 0; i < nCards; i++) {
+            cout << cards[i] << "   "; // Display player's cards
+        }
+        cout << endl;
+
+        cout << "Place your card or draw from deck: p / d" << endl;
+        cin >> resp;
+
+        // Validating player's input
+        if(resp == 'p' && deck == cards[3]) {
+            cout << "You have to draw cards!" << endl;
+            cin >> resp;
+        }
+
+        // If response is "Place"
+        if(resp == 'p') {
+            // Search for the card in player's hand using linear search
+            float key;
+            cout << "Enter the card you want to place: ";
+            cin >> key;
+            int pos = linSrch(cards, nCards, key);
+            if(pos != -1) {
+                cout << "Placing card " << key << " at position " << pos+1 << endl;
+            } else {
+                cout << "Card not found in your hand!" << endl;
+            }
+        }
+
+        // If response is "Draw": Get Random Card
+        if (resp == 'd' || resp == 'D') {
+            for(int i = 1; i <= 1; i++) {
+                cout << rand() % nCards + 1 << endl;
+            }                     
+            // Losing Screen and asks User to press 'c' to Continue
+            while(resp != 'c' && resp != 'C') {
+                win = false;
+                if(win == false) {
+                    cout << "You lost :( " << endl << "Press 'c' to Continue\n";
+                    cin >> resp;
+                }
+            }
+        }
+
+        // Display Results -> Outputs
+        cout << "Would you like to play again?\n\n";
+        cin >> resp;
+    } while(resp == 'y' || resp == 'Y');
+
+    // Quits the Program
+    if(resp == 'n' || resp == 'N') {
+        cout << "Okay Bye Bye " << pow(2,2) << " Ever :)" << endl;
+    }
+
+    // Clean up files
+    input.close(); //close file
+}
+
+// Function to perform bubble sort
+void bbleSrt(float a[], int size) {
+    for(int i = 0; i < size - 1; i++) {
+        for(int j = 0; j < size - i - 1; j++) {
+            if(a[j] > a[j+1]) {
+                // Swap a[j] and a[j+1]
+                float temp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = temp;
+            }
+        }
+    }
+}
+
+// Function to perform linear search
+int linSrch(float a[], int size, float key) {
+    for(int i = 0; i < size; i++) {
+        if(a[i] == key) {
+            return i;
+        }
+    }
+    return -1; // Key not found
+}
+
+// Function to Read the Rules
+void rules() {
+    unsigned int a = 3 - 2,
+                 b = 2;
+    string face = (a > b) ? ">:(" : ":)"; // Displays mad face
+    cout << fixed << setw(60) << "Okay Let Me Explain " << face << endl;
+    cout << "A top deck card will be randomly be drawn\n";
+    cout << "Then the player will get 4 randomly drawn cards\n";
+    cout << "If the player has 1 or more cards that match the deck card," <<
+            " then they will be able to place their card(s)\n";
+    cout << "However, if the player does not have any cards that match the " <<
+            "deck, the player will have to draw one card\n";
+    cout << "And if the card drawn is not the deck card, the game ends " << face;  
+}
