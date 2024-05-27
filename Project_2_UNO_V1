@@ -1,0 +1,155 @@
+/* 
+ * File:   main.cpp
+ * Author: Ivan Hernandez
+ * Created on May 27, 8:30 AM
+ *Purpose: UNO Game with an array to hold players cards
+*/
+
+//System Libraries
+#include <iostream> 
+#include <fstream> // File Library
+#include <iomanip> // Formatting Library
+#include <cstdlib> // Random Function Library
+#include <cstring> // String Library
+#include <ctime>   // Time Library
+#include <cmath>   // Math Library
+
+using namespace std;
+
+//User Libraries
+
+//Global Constant - Math/Science/Conversions/Dimensions
+
+//Function Prototypes
+
+//Program Execution Begins
+int main(int argc, char** argv) {
+    //Set the random number seed
+    
+    //Variable Declarations
+    char choice;
+    const int nCards = 4; //Number of possible cards
+    
+    //Variable Initialization -> Inputs
+    cout<<"Would You Like to Play UNO or Read the Rules? :  p/r"<<endl;
+    cin>>choice;
+
+    //Mapping Inputs to Outputs
+    switch(choice) {
+        case 'p':{ //Set the random number seed
+                srand(static_cast<unsigned int>(time(0)));
+
+                //Variable Declarations
+                fstream input;
+                float deck,                 //Holds the value of top deck card
+                      cards[4];             //Holds values of the player's cards
+                char resp;                  //Player's response
+                string fileNam;             //File name
+                bool win;                   //Determines if player won the game
+
+                //Initialize file parameters
+                fileNam="uno_1.cards";
+                input.open(fileNam.c_str(),ios::in); 
+
+                //Variable Initialization -> Inputs
+                
+                
+                //Loops Game as long as the Player wants to play
+                do {
+                    cout<<"Let's Play UNO"<<endl;
+                    cout<<"The deck card is..."<<endl;
+
+                    //Mapping inputs to Outputs -> Process
+
+                    //Randomize Deck Card and Display It
+                    deck=rand()%nCards+1;
+                    cout<<deck<<endl;
+                    cout<<"Now the player will get 4 play cards"<<endl;
+
+                    //Randomize Player's Cards, Display them and User's Input
+                    for(int i = 0; i < nCards; i++) {
+                        cards[i] = rand() % nCards + 1; // Fill player's cards array with random values
+                    }
+                    for(int i = 0; i < nCards; i++) {
+                        cout << cards[i] << "   "; // Display player's cards
+                    }
+                    cout<<endl;
+                    cout<<"Place your card or draw from deck: p / d"<<endl;
+                    cin>>resp;
+
+                    //Validating player's input
+                    if(resp=='p' && deck==cards[4]) {
+                        cout<<"You have to draw cards!"<<endl;
+                        cin>>resp;
+                    }
+
+
+                    //If response is "Place"
+                    if(resp=='p') {
+                        bool cardMatch = false;
+                        for(int i = 0; i < nCards; i++) {
+                            //Check if any player's card matches the deck card
+                            if(cards[i] == deck) { 
+                                cout << "The deck card is now on: " << deck << endl;
+                                deck = cards[i];
+                                for(int j = 0; j < nCards; j++) {
+                                    if(cards[j] != deck) {
+                                        cout << cards[j] << "   "; //Display remaining player's cards
+                                    }
+                                }
+                                cout << endl;
+                                cardMatch = true;                           
+                            }
+                        }
+                    }
+
+                    //If response is "Draw": Get Random Card
+                    if (resp=='d' || resp=='D') {
+                        for(int i=1; i<=1; i++) {
+                            rand()%nCards+1;
+                            cout<<rand()%nCards+1<<endl;
+                        }                     
+                        
+                        //Losing Screen and asks User to press 'c' to Continue
+                        while(resp!='c' && resp!='C') {
+                            win=false;
+                            if(win==false) {
+                            cout<<"You lost :( "<<endl<<"Press 'c' to Continue\n";
+                            cin>>resp;
+                            }
+                        }
+                    }
+
+                    //Display Results -> Outputs
+                    cout<<"Would you like to play again?\n\n";
+                    cin>>resp;
+                }
+                while(resp=='y' || resp=='Y');
+                
+                //Quits the Program
+                if(resp=='n' || resp=='N') {
+                    cout<<"Okay Bye Bye "<<pow(2,2)<<" Ever :)"<<endl;
+                }
+
+                //Clean up files
+                input.close(); //close file
+    }
+                break;
+        
+        //Default case that displays the rules of UNO
+        default:unsigned int a=3-2;
+            unsigned int b=2;
+            string face=(a>b)?">:(":":)"; //Displays mad face
+            cout<<fixed<<setw(60)<<"Okay Let Me Explain "<<face<<endl;
+            cout<<"A top deck card will be randomly be drawn\n";
+            cout<<"Then the player will get 4 randomly drawn cards\n";
+            cout<<"If the player has 1 or more cards that match the deck card,"<<
+            " then they will be able to place their card(s)\n";
+            cout<<"However, if the player does not have any cards that match the "<<
+            "deck, the player will have to draw one card\n";
+            cout<<"And if the card drawn is not the deck card, the game ends "<<face;        
+    }
+    
+    //Exit stage right
+    return 0;
+}
