@@ -1,0 +1,209 @@
+/* 
+ * File:   main.cpp
+ * Author: Ivan Hernandez
+ * Created on May 27, 12:00 PM
+ *Purpose: UNO Game with defaulted argument, overloading, and references
+*/
+
+#include <iostream> 
+#include <fstream> 
+#include <iomanip> 
+#include <cstdlib> 
+#include <cstring> 
+#include <ctime>   
+#include <cmath>   
+
+using namespace std;
+
+// Function Prototypes
+void playUNO(int&);
+void playUNO(int&, int); // Overloaded function prototype
+void bbleSrt(float [], int );
+int linSrch(float [], int , float );
+bool validateInput(char);
+void rules();
+void displayUNO(); // New function prototype
+
+// Program Execution Begins
+int main(int argc, char** argv) {
+    // Set the random number seed
+    
+    // Variable Declarations
+    char choice;
+    const int nCards = 4; // Number of possible cards
+    int losses = 0; // Counter for losses
+
+    // Variable Initialization -> Inputs
+    cout << "Would You Like to Play UNO or Read the Rules? :  p/r" << endl;
+    cin >> choice;
+
+    // Mapping Inputs to Outputs
+    switch(choice) {
+        case 'p': 
+            // Prompt the user for the number of rounds
+            int rounds;
+            cout << "Enter the number of rounds you want to play: ";
+            cin >> rounds;
+            playUNO(losses, rounds); // Call the overloaded function
+            break;
+        
+        // Default case that displays the rules of UNO
+        default:  
+            rules();       
+    }
+
+    // Display number of losses
+    cout << "Number of losses out of 5 games: " << losses << endl;
+    
+    // Exit stage right
+    return 0;
+}
+
+// Overloaded function for UNO Game
+void playUNO(int& losses, int rounds) {
+    for (int i = 0; i < rounds; ++i) {
+        // Set the random number seed
+        srand(static_cast<unsigned int>(time(0)));
+
+        // Variable Declarations
+        const int nCards = 4;
+        fstream input;
+        float deck, cards[4]; // Holds values of the player's cards
+        char resp; // Player's response
+        string fileNam; // File name
+        bool win; // Determines if player won the game
+
+        // Initialize file parameters
+        fileNam = "uno_1.cards";
+        input.open(fileNam.c_str(), ios::in); 
+
+        cout << "Round " << i + 1 << endl;
+
+        // Loops Game as long as the Player wants to play
+        do {
+            cout << "Let's Play UNO" << endl;
+            cout << "The deck card is..." << endl;
+
+            // Randomize Deck Card and Display It
+            deck = rand() % nCards + 1;
+            cout << deck << endl;
+            cout << "Now the player will get 4 play cards" << endl;
+
+            // Randomize Player's Cards, Display them and User's Input
+            for(int i = 0; i < nCards; i++) {
+                cards[i] = rand() % nCards + 1; // Fill player's cards array with random values
+            }
+
+            // Sorting the player's cards using bubble sort
+            bbleSrt(cards, nCards);
+
+            cout << "Player's Cards: ";
+            for(int i = 0; i < nCards; i++) {
+                cout << cards[i] << "   "; // Display player's cards
+            }
+            cout << endl;
+
+            cout << "Place your card or draw from deck: p / d" << endl;
+            cin >> resp;
+
+            // Validate player's input
+            while (!validateInput(resp)) {
+                cout << "Invalid input! Please enter 'p' to place or 'd' to draw: ";
+                cin >> resp;
+            }
+
+            // If response is "Place"
+            if(resp == 'p') {
+                // Search for the card in player's hand using linear search
+                float key;
+                cout << "Enter the card you want to place: ";
+                cin >> key;
+                int pos = linSrch(cards, nCards, key);
+                if(pos != -1) {
+                    cout << "Placing card " << key << " at position " << pos+1 << endl;
+                    // Check if the player has UNO
+                    if (nCards == 1) {
+                        displayUNO();
+                    }
+                } else {
+                    cout << "Card not found in your hand!" << endl;
+                }
+            }
+
+            // If response is "Draw": Get Random Card
+            if (resp == 'd' || resp == 'D') {
+                for(int i = 1; i <= 1; i++) {
+                    cout << rand() % nCards + 1 << endl;
+                }                     
+                // Losing Screen and asks User to press 'c' to Continue
+                while(resp != 'c' && resp != 'C') {
+                    win = false;
+                    if(win == false) {
+                        cout << "You lost :( " << endl << "Press 'c' to Continue\n";
+                        cin >> resp;
+                    }
+                }
+                losses++; // Increment the losses
+            }
+
+            // Display Results -> Outputs
+            cout << "For next round press 'n':\n\n";
+            cin >> resp;
+        } while(resp == 'y' || resp == 'Y');
+
+        // Clean up files
+        input.close(); //close file
+    }
+
+    // Quits the Program
+    cout << "Okay Bye Bye " << pow(2,2) << " Ever :)" << endl;
+}
+
+// Function to perform bubble sort
+void bbleSrt(float a[], int size=4) {
+    for(int i = 0; i < size - 1; i++) {
+        for(int j = 0; j < size - i - 1; j++) {
+            if(a[j] > a[j+1]) {
+                // Swap a[j] and a[j+1]
+                float temp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = temp;
+            }
+        }
+    }
+}
+
+// Function to perform linear search
+int linSrch(float a[], int size, float key) {
+    for(int i = 0; i < size; i++) {
+        if(a[i] == key) {
+            return i;
+        }
+    }
+    return -1; // Key not found
+}
+
+// Function to validate player's input
+bool validateInput(char resp) {
+    return resp == 'p' || resp == 'P' || resp == 'd' || resp == 'D';
+}
+
+// Function to display UNO
+void displayUNO() {
+    cout << "UNO!" << endl;
+}
+
+// Function to Read the Rules
+void rules() {
+    unsigned int a = 3 - 2,
+                 b = 2;
+    string face = (a > b) ? ">:(" : ":)"; // Displays mad face
+    cout << fixed << setw(60) << "Okay Let Me Explain " << face << endl;
+    cout << "A top deck card will be randomly be drawn\n";
+    cout << "Then the player will get 4 randomly drawn cards\n";
+    cout << "If the player has 1 or more cards that match the deck card," <<
+            " then they will be able to place their card(s)\n";
+    cout << "However, if the player does not have any cards that match the " <<
+            "deck, the player will have to draw one card\n";
+}
+
