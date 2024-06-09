@@ -1,0 +1,266 @@
+/* 
+ * File:   main.cpp
+ * Author: Ivan Hernandez
+ * Created on May 27, 4:00 PM
+ *Purpose: UNO Game that alters between bubble sort, linear search, and selection sort
+*/
+
+#include <iostream> 
+#include <fstream> 
+#include <iomanip> 
+#include <cstdlib> 
+#include <cstring> 
+#include <ctime>   
+#include <cmath>   
+
+using namespace std;
+
+// Function Prototypes
+void playUNO(int&);
+void playUNO(int&, int);              //Overloaded function prototype
+void bbleSrt(string [], int);         //Bubble Sort
+int  linSrch(string [], int, string); //Linear Search
+void selSrt(string [], int);          //Selection Sort
+bool valInpt(char);                   //Validate Input
+void rules();                         //Display Rules
+void dplyUNO();                       //Displays that the player got UNO!
+ 
+// Program Execution Begins
+int main(int argc, char** argv) {
+    // Set the random number seed
+    
+    // Variable Declarations
+    char choice;
+    const int nCards = 4;   // Number of possible cards
+    int losses = 0;         // Counter for losses
+    float talRnds = 0;      // Total Rounds
+
+    // Variable Initialization -> Inputs
+    cout<<"Would You Like to Play UNO or Read the Rules? :  p/r"<<endl;
+    cin>>choice;
+
+    // Mapping Inputs to Outputs
+    switch(choice) {
+        case 'p': 
+            // Prompt the user for the number of rounds
+            int rounds;
+            cout<<"Enter the number of rounds you want to play: ";
+            cin>>rounds;
+            playUNO(losses,rounds); // Call the overloaded function
+            talRnds = rounds;
+            break;
+        
+        // Default case that displays the rules of UNO
+        default:  
+            rules();       
+    }
+
+    // Display number of losses
+    cout<<"Number of losses out of "<<talRnds<<" games: "<<losses<<endl;
+    
+    // Exit stage right
+    return 0;
+}
+
+// Overloaded function for UNO Game
+void playUNO(int& losses, int rounds) {
+    int srtPat = 1; // 1 - Bubble Sort, 2 - Linear Search, 3 - Selection Sort
+    for (int i=0; i<rounds; ++i) {
+        
+        // Set the random number seed
+        srand(static_cast<unsigned int>(time(0)));
+
+        // Variable Declarations
+        int nCards = 4;
+        fstream input;
+        string deck, cards[4];  // Holds values of the player's cards
+        char resp;              // Player's response
+        string fileNam;         // File name
+        bool win;               // Determines if player won the game
+
+        // Initialize file parameters
+        fileNam = "uno_1.cards";
+        input.open(fileNam.c_str(), ios::in); 
+
+        cout<<"Round "<<i + 1<<endl;
+
+        // Loops Game as long as the Player wants to play
+        do {
+            cout<<"Let's Play UNO"<<endl;
+            cout<<"The deck card is..."<<endl;
+
+            // Randomize Deck Card and Display It
+            char colors[] = {'R', 'B', 'G', 'Y'};
+            deck = colors[rand()%4];
+            cout<<deck<<endl;
+            cout<<"Now the player will get 4 play cards"<<endl;
+
+            // Randomize Player's Cards, Display them and User's Input
+            for(int i=0; i<nCards; i++) {
+                cards[i] = colors[rand()%4]; // Fill player's cards array with random colors
+            }
+
+            // Sort the player's cards using the selected algorithm
+            switch (srtPat) {
+                case 1: // Bubble Sort
+                    bbleSrt(cards, nCards);
+                    break;
+                case 2: // Linear Search (Just to switch the sorting algorithm)
+                    linSrch(cards, nCards,"");
+                    break;
+                case 3: // Selection Sort
+                    selSrt(cards, nCards);
+                    break;
+            }
+
+            cout<<"Player's Cards: ";
+            for(int i=0; i<nCards; i++) {
+                cout<<cards[i]<<"   "; // Display player's cards
+            }
+            cout<<endl;
+
+            cout<<"Place your card or draw from deck: p / d" << endl;
+            cin>>resp;
+
+            // Validate player's input
+            while (!valInpt(resp)) {
+                cout<<"Invalid input! Please enter 'p' to place or 'd' to draw: ";
+                cin>>resp;
+            }
+
+            // If response is "Place"
+            if(resp == 'p') {
+                
+                // Search for the card in player's hand using linear search
+                string key;
+                cout<<"Enter the color of the card you want to place: ";
+                cin>>key;
+                int pos = linSrch(cards, nCards, key);
+                if(pos != -1) {
+                    cout<<"Placing card "<<key<<" at position "<<pos + 1<< endl;
+                    
+                    // Remove the placed card from the player's hand
+                    for (int j=pos; j<nCards - 1; ++j) {
+                        cards[j] = cards[j + 1];
+                    }
+                    nCards--; // Reduce the number of cards after placing
+                    cout<<"Player's Cards left: ";
+                    for(int i=0; i<nCards; i++) {
+                        cout<<cards[i]<<"   "; // Display remaining cards
+                    }
+                    cout<<endl;
+                    
+                    // Check if the player has UNO
+                    if (nCards == 1) {
+                        dplyUNO();
+                    }
+                } 
+                else {
+                    cout<<"Card not found in your hand!"<<endl;
+                }
+            }
+
+            // If response is "Draw": Get Random Card
+            if (resp == 'd' || resp == 'D') {
+                for(int i=1; i<=1; i++) {
+                    cout<<colors[rand()%4]<<endl;
+                }                     
+                
+                // Losing Screen and asks User to press 'c' to Continue
+                while(resp != 'c' && resp != 'C') {
+                    win = false;
+                    if(win == false) {
+                        cout<<"You lost :( "<<endl<<"Press 'c' to Continue\n";
+                        cin>>resp;
+                    }
+                }
+                losses++; // Increment the losses
+            }
+
+            // Display Results -> Outputs
+            cout << "For next round press 'n':\n\n";
+            cin >> resp;
+        } 
+        while(resp == 'y' || resp == 'Y');
+
+        // Clean up files
+        input.close(); //close file
+
+        // Switch the sorting algorithm for the next round
+        srtPat = (srtPat % 3) + 1;
+    }
+
+    // Quits the Program
+    cout<<"Okay Bye Bye "<<pow(2,2)<< " Ever :)"<<endl;
+}
+
+// Function to perform bubble sort
+void bbleSrt(string a[], int size=4) {
+    for(int i=0; i<size-1; i++) {
+        for(int j=0; j<size - i - 1; j++) {
+            if(a[j] > a[j+1]) {
+                // Swap a[j] and a[j+1]
+                string temp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = temp;
+            }
+        }
+    }
+}
+
+// Function to perform linear search
+int linSrch(string a[], int size, string key) {
+    for(int i=0; i<size; i++) {
+        if(a[i] == key) {
+            return i;
+        }
+    }
+    return -1; // Key not found
+}
+
+// Function to perform selection sort
+void selSrt(string a[], int size) {
+    for(int i=0; i<size - 1; i++) {
+        int min = i;
+        for(int j=i + 1; j<size; j++) {
+            if(a[j] < a[min]) {
+                min = j;
+            }
+        }
+        if(min != i) {
+            // Swap a[i] and a[min]
+            string temp = a[i];
+            a[i] = a[min];
+            a[min] = temp;
+        }
+    }
+}
+
+// Function to validate player's input
+bool valInpt(char resp) {
+    return resp == 'p' || resp == 'P' || resp == 'd' || resp == 'D';
+}
+
+// Function to display UNO
+void dplyUNO() {
+    cout << "UNO!" << endl;
+}
+
+// Function to Read the Rules
+void rules() {
+    unsigned int a = 3 - 2,
+                 b = 2;
+    string face = (a > b) ? ">:(" : ":)"; // Displays mad face
+    cout<<fixed<<setw(60)<<"Okay Let Me Explain "<<face<<endl;
+    cout<<"First you need to choose how many round you would like to play "<<
+          "Then a top deck card will be randomly be drawn\n";
+    cout<<"After, the player will get 4 randomly drawn cards\n";
+    cout<<"The game will ask which color you want to place down"<<endl;
+    cout<<"Make sure you input the color's initial letter in capital case"<<endl;
+    cout<<"If the player has 1 or more cards that match the deck card,"<<
+          " then they will be able to place their card(s)\n";
+    cout<<"After the remaining cards are displayed press 'n' for the next round"<<endl;
+    cout<<"However, if the player does not have any cards that match the "<<
+          "deck, the player will have to draw one card\n";
+    cout<<"Lastly the game will show your loss to rounds ratio as such:"<<endl;
+}
